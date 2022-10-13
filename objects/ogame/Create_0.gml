@@ -15,7 +15,11 @@ enum gameStatus {
 	
 }
 
+
+randomize();
+
 gameBuffer = buffer_create(100, buffer_grow, 100);
+clientSocket = 0;
 connectedPlayers = 2;
 
 moveSpeed = 4;
@@ -23,17 +27,14 @@ moveSpeed = 4;
 players = array_create(connectedPlayers);
 
 Player = function(instance) constructor {
-	playerId = -1;
+	playerId = instance_number(oPlayerBat);
 	playerScore = 0;
 	playerInstance = instance;
-	xPos = instance.x;
-	yPos = instance.y;
 	
 	function updatePosition(xDelta = 0, yDelta = 0) {
-		xPos += xDelta;
-		yPos += yDelta;
-		playerInstance.x = xPos;
-		playerInstance.y = clamp(yPos, 0 + sprite_get_yoffset(sprPlayerBat), room_height - sprite_get_yoffset(sprPlayerBat));
+
+		playerInstance.x = playerInstance.x;
+		playerInstance.y = clamp(playerInstance.y + yDelta, 0 + sprite_get_yoffset(sprPlayerBat), room_height - sprite_get_yoffset(sprPlayerBat));
 	}
 	
 }
@@ -53,8 +54,8 @@ gameState = function(_players) constructor {
 	
 	var _ball = instance_create_layer(room_width/2, room_height/2, "Instances", oBall);
 	ball = new actor(_ball.x, _ball.y);
-	player1 = new actor(players[0]);
-	player2 = new actor(players[1]);
+	player1 = new actor(players[0].playerInstance.x, players[0].playerInstance.y);
+	player2 = new actor(players[1].playerInstance.x, players[1].playerInstance.y);
 
 	static Update = function() {
 		ball.Update(oBall);

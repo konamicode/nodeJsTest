@@ -13,4 +13,10 @@ for ( var i = 0; i < connectedPlayers; i++)
 if (connection == connectionType.host )
 {
 	currentGame = new gameState(players);
+	server = network_create_server(network_socket_tcp, port, 2);
+}
+else {
+	currentGame = new gameState(players);
+	serverSocket = network_create_socket(network_socket_tcp);		
+	gameConnection = network_connect(serverSocket, "127.0.0.1", port);	
 }

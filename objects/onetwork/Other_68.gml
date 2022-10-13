@@ -1,10 +1,11 @@
 
-show_debug_message(json_encode(async_load));
+//show_debug_message(json_encode(async_load));
 var type_event = ds_map_find_value(async_load, "type");
 
 switch (type_event)
 {
     case network_type_connect:
+	case network_type_non_blocking_connect:
 		canStartGame = true;
         socket = ds_map_find_value(async_load, "socket");
         ds_list_add(socket_list, socket);

@@ -9,7 +9,11 @@ enum msgType {
 }
 
 remoteHost = "127.0.0.1";
-lobbyHost = "127.0.0.1";
+lobbyHost = network_resolve("https://nodejs-lobby.azurewebsites.net");
+lobbyHost = localhost;
+//show_debug_message("resolved ip: " + string(lobbyHost));
+port = 3002;
+
 
 amIHosting = false;
 myLobby = noone;
@@ -17,8 +21,9 @@ canStartGame = false;
 
 socket_list = ds_list_create();
 
-lobbyServer = network_create_socket(network_socket_udp);
-network_connect_raw(lobbyServer, localhost, 8080);
+//lobbyServer = network_create_socket(network_socket_ws);
+//network_connect_raw(lobbyServer, lobbyHost, port);
+
 
 gameServer = noone;
 
@@ -33,11 +38,7 @@ function nwData(_type = msgType.PING, _data = {}) constructor {
 	data = _data;
 }
 
-function gameData(_source, _playerId, _data = {}) constructor {
-	source = _source;
-	playerId = _playerId;
-	data = _data;
-}
+
 
 Lobby = function (_name, _passwd) constructor{
 	lobbyName = _name;
@@ -61,7 +62,9 @@ function CreateLobby() {
 	var _data = new nwData(msgType.CREATE_HOST, lobby);
 	buffer_seek(server_buffer, buffer_seek_start, 0);
 	buffer_write(server_buffer, buffer_text, json_stringify(_data));
-	network_send_udp_raw(lobbyServer, localhost, 8080, server_buffer, buffer_tell(server_buffer));
+	lobbyServer = network_create_socket(network_socket_udp);
+	network_connect_raw(lobbyServer, lobbyHost, port);
+	network_send_raw(lobbyServer, server_buffer, buffer_tell(server_buffer));
 	amIHosting = true;
 	gameServer = network_create_server(network_socket_udp, 8081, 2);
 	myLobby = lobby;
@@ -73,12 +76,14 @@ function CancelLobby() {
 }
 
 function GetLobbyList() {
+	show_debug_message("starting connection");
 	lobbyServer = network_create_socket(network_socket_udp);
-	network_connect_raw(lobbyServer, localhost, 8080);
+	network_connect_raw(lobbyServer, lobbyHost, port);
 	var data = new nwData(msgType.GET_LOBBIES);
+	show_debug_message(data);
 	buffer_seek(server_buffer, buffer_seek_start, 0);
 	buffer_write(server_buffer, buffer_text, json_stringify(data));
-	network_send_udp_raw(lobbyServer, localhost, 8080, server_buffer, buffer_tell(server_buffer));
+	network_send_raw(lobbyServer, server_buffer, buffer_tell(server_buffer));
 }
 
 function JoinLobby(lobbyIndex) {
@@ -86,10 +91,10 @@ function JoinLobby(lobbyIndex) {
 	var data = new nwData(msgType.JOIN_HOST, lobbyIndex);
 	buffer_seek(server_buffer, buffer_seek_start, 0);
 	buffer_write(server_buffer, buffer_text, json_stringify(data));
-	network_send_udp_raw(lobbyServer, localhost, 8080, server_buffer, buffer_tell(server_buffer));	
+	network_send_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));	
 	serverSocket = network_create_socket(network_socket_udp);
 	var ip = lobbies[lobbyIndex].hostIP;
-	var connection = network_connect_async(serverSocket, ip, 8081);
+	var connection = network_connect_async(serverSocket, lobbyHost, 8081);
 	if (connection)
 	{
 		show_message("Connected!")

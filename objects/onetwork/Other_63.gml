@@ -11,7 +11,10 @@ if (_id == msg) {
 	if (networkInput != "") {
 		buffer_seek(player_buffer, buffer_seek_start, 0);
 		buffer_write(player_buffer, buffer_text, networkInput);
-		network_send_udp_raw(client, localhost, 8080, player_buffer, buffer_tell(player_buffer));
+		lobbyServer = network_create_socket(network_socket_udp);
+		network_connect_raw(lobbyServer, lobbyHost, port);
+		network_send_raw(lobbyServer, player_buffer, buffer_tell(player_buffer));
+		//network_send_raw(client, lobbyHost, port, player_buffer, buffer_tell(player_buffer));
 	}	
 	
 }
