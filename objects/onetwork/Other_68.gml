@@ -34,16 +34,19 @@ switch (type_event)
 				case msgType.GET_LOBBIES:
 					lobbies = data;
 				break;
+				case msgType.PLAYER_JOINED:
+					lobbies = data;
+					if amIHosting
+						canStartGame = true;	
+				break;
 				case msgType.START_GAME:
-					show_debug_message("Starting game!");
-					//instance_create_layer(0, 0, "Instances", oGame, {connection : connectionType.client});
-					//room_goto(rmGame);
+					StartGame(data);
 				break;
 				//case msgType.JOIN_HOST:
 			
 				//break;
-			}
-	
+			}						
+
 			show_debug_message(responseMsg);	
 		}		
         break;

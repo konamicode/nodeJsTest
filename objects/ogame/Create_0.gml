@@ -9,9 +9,11 @@ enum msgSource {
 }
 
 enum gameStatus {
+	waitingOnConnection,
 	inPlay,
 	start,
-	goal
+	goal,
+	complete
 	
 }
 
@@ -21,8 +23,9 @@ randomize();
 gameBuffer = buffer_create(100, buffer_grow, 100);
 clientSocket = 0;
 connectedPlayers = 2;
+port = 3003;
 
-moveSpeed = 4;
+moveSpeed = 8;
 
 players = array_create(connectedPlayers);
 
@@ -37,8 +40,19 @@ Player = function(instance) constructor {
 		playerInstance.y = clamp(playerInstance.y + yDelta, 0 + sprite_get_yoffset(sprPlayerBat), room_height - sprite_get_yoffset(sprPlayerBat));
 	}
 	
+	static AddPoint = function()
+	{
+		playerScore += 1;
+	}	
 }
 
+networkUpdate = function() {
+	var data = json_stringify(new gameData(msgSource.host, -1, currentGame));
+	buffer_seek(gameBuffer, buffer_seek_start, 0);
+	buffer_write(gameBuffer, buffer_text, data);
+	if (clientSocket)
+		network_send_raw(clientSocket, gameBuffer, buffer_tell(gameBuffer));		
+}
 
 gameState = function(_players) constructor {
 	players = _players;
@@ -46,7 +60,7 @@ gameState = function(_players) constructor {
 		x = _y;
 		y = _y;
 		
-		static Update = function(_instance) {
+		Update = function(_instance) {
 			x =_instance.x;
 			y =_instance.y;
 		}
@@ -56,11 +70,48 @@ gameState = function(_players) constructor {
 	ball = new actor(_ball.x, _ball.y);
 	player1 = new actor(players[0].playerInstance.x, players[0].playerInstance.y);
 	player2 = new actor(players[1].playerInstance.x, players[1].playerInstance.y);
+	
+	status = gameStatus.waitingOnConnection;
+	winner = 0;
+	matchPoint = 3;
+	
+	StartGame = function() {
+		oBall.x = room_width/2;
+		oBall.y = room_height/2;	
+		oBall.speed = 2.5;
+		oBall.direction = choose(0, 180);		
+		status = gameStatus.inPlay;
+	}
 
-	static Update = function() {
+	Update = function() {
+		//UpdateStatus(_status);
 		ball.Update(oBall);
 		player1.Update(players[0].playerInstance);
 		player2.Update(players[1].playerInstance);
+		
+		oGame.networkUpdate();
+	
 	}
+	
+	Score = function(_player) {
+		_player.AddPoint();
+	}
+	
+	UpdateStatus = function(_newStatus) {
+		status = _newStatus;	
+	}
+	
+	Reset = function() {
+		self.UpdateStatus(gameStatus.start)
+
+		call_later(3, time_source_units_seconds, self.StartGame);
+	}
+	
+	End = function(_playerNumber) {
+		winner = _playerNumber;
+		self.UpdateStatus(gameStatus.complete);
+		self.Update();
+	}
+
 }
 

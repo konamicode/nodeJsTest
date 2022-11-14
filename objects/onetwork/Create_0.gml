@@ -4,13 +4,20 @@ enum msgType {
 	GET_LOBBIES,
 	CREATE_HOST,
 	JOIN_HOST,
+	PLAYER_JOINED,
+	READY,
 	START_GAME,
+	END_HOST,
+	CLEAR_LOBBIES,
 	QUIT
 }
 
-remoteHost = "127.0.0.1";
-lobbyHost = network_resolve("https://nodejs-lobby.azurewebsites.net");
-lobbyHost = localhost;
+
+//lobbyHost = network_resolve("https://nodejs-lobby.azurewebsites.net");
+if useLocalhost
+	lobbyHost = localhost;
+else
+	lobbyHost = remoteHost;
 //show_debug_message("resolved ip: " + string(lobbyHost));
 port = 3002;
 
@@ -45,10 +52,11 @@ Lobby = function (_name, _passwd) constructor{
 	hostIP = "";
 	maxPlayers = 2;
 	clients = [];
+	ports = [];
 	players = [];
 	password = _passwd;
 	
-	function AddPlayer(_player)
+	function AddPlayer(_player, ip)
 	{
 		array_push(players, _player);
 	}
@@ -66,7 +74,7 @@ function CreateLobby() {
 	network_connect_raw(lobbyServer, lobbyHost, port);
 	network_send_raw(lobbyServer, server_buffer, buffer_tell(server_buffer));
 	amIHosting = true;
-	gameServer = network_create_server(network_socket_udp, 8081, 2);
+	gameServer = network_create_server(network_socket_udp, port, 2);
 	myLobby = lobby;
 	return lobby;
 }
@@ -84,6 +92,7 @@ function GetLobbyList() {
 	buffer_seek(server_buffer, buffer_seek_start, 0);
 	buffer_write(server_buffer, buffer_text, json_stringify(data));
 	network_send_raw(lobbyServer, server_buffer, buffer_tell(server_buffer));
+	alarm[0] = 90;
 }
 
 function JoinLobby(lobbyIndex) {
@@ -91,14 +100,9 @@ function JoinLobby(lobbyIndex) {
 	var data = new nwData(msgType.JOIN_HOST, lobbyIndex);
 	buffer_seek(server_buffer, buffer_seek_start, 0);
 	buffer_write(server_buffer, buffer_text, json_stringify(data));
-	network_send_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));	
-	serverSocket = network_create_socket(network_socket_udp);
-	var ip = lobbies[lobbyIndex].hostIP;
-	var connection = network_connect_async(serverSocket, lobbyHost, 8081);
-	if (connection)
-	{
-		show_message("Connected!")
-	}
+	network_send_raw(lobbyServer, server_buffer, buffer_tell(server_buffer));	
+	//serverSocket = network_create_socket(network_socket_udp);
+
 }
 
 function QuitLobby() {
@@ -106,8 +110,12 @@ function QuitLobby() {
 }
 
 
-function StartGame() {
-	
+StartGame = function(ip) {
+	show_debug_message("Starting game!");
+	global.isClient = !amIHosting;
+	global.gameHostIP = ip;	
+	//instance_create_layer(0, 0, "Instances", oGame, {connection : connectionType.client});
+	room_goto(rmGame);
 }
 
 

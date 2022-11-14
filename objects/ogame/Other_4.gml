@@ -9,6 +9,10 @@ for ( var i = 0; i < connectedPlayers; i++)
 	//	inst.connection = connectionType.client;
 	players[i] = new Player(inst);
 }
+if !is_undefined(global.isClient)
+{
+	connection = global.isClient;
+}
 
 if (connection == connectionType.host )
 {
@@ -18,5 +22,10 @@ if (connection == connectionType.host )
 else {
 	currentGame = new gameState(players);
 	serverSocket = network_create_socket(network_socket_tcp);		
-	gameConnection = network_connect(serverSocket, "127.0.0.1", port);	
+	if !is_undefined(global.gameHostIP)
+	{
+		gameConnection = network_connect(serverSocket, global.gameHostIP, port);	
+	}
+	else
+		gameConnection = network_connect(serverSocket, "127.0.0.1", port);	
 }
