@@ -1,1 +1,1 @@
-//GetLobbyList();
+GetLobbyList();

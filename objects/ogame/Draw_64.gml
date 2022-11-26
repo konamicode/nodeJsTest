@@ -20,7 +20,7 @@ switch(currentGame.status) {
 	case gameStatus.complete:
 		draw_set_halign(fa_center);
 		draw_text(window_get_width() / 2, window_get_height()/ 2, "Game Over! Player " + string(currentGame.winner) + " Wins!");
-		draw_text(window_get_width() / 2, window_get_height()/ 2 + 30, "Returning to lobby in " + string( alarm[0] div 15 ) );
+		draw_text(window_get_width() / 2, window_get_height()/ 2 + 30, "Returning to lobby in " + string( alarm[0] div 30 ) );
 		draw_set_halign(fa_left);
 	break;
 		

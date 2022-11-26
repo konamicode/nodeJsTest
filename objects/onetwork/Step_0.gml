@@ -13,83 +13,89 @@
 //	response = "";
 //}
 
-if keyboard_check_pressed(vk_tab)
-	useLocalhost = !useLocalhost;
+if room == rmNetworkSetup {
+	visible = true;
+	if keyboard_check_pressed(vk_tab)
+		useLocalhost = !useLocalhost;
 
-if useLocalhost
-	lobbyHost = localhost;
-else
-	lobbyHost = remoteHost;
+	if useLocalhost
+		lobbyHost = localhost;
+	else
+		lobbyHost = remoteHost;
 
 
-if (keyboard_check_pressed(vk_delete) ) {
-	var _data = new nwData(msgType.CLEAR_LOBBIES, 0);
-	var data = json_stringify(_data);
-	buffer_seek(server_buffer, buffer_seek_start, 0);
-	buffer_write(server_buffer, buffer_text, data);
-	network_send_udp_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));	
-	myLobby = noone;
-}
-
-if (keyboard_check_pressed(vk_backspace) ) {
-	var _data = new nwData(msgType.END_HOST, 0);
-	var data = json_stringify(_data);
-	buffer_seek(server_buffer, buffer_seek_start, 0);
-	buffer_write(server_buffer, buffer_text, data);
-	network_send_udp_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));	
-	myLobby = noone;
-}
-
-if (amIHosting && myLobby) {
-	if keyboard_check_pressed(vk_enter)
-	{
-		canStartGame = false;
-		var _data = new nwData(msgType.READY, 0);
+	if (keyboard_check_pressed(vk_delete) ) {
+		var _data = new nwData(msgType.CLEAR_LOBBIES, 0);
 		var data = json_stringify(_data);
 		buffer_seek(server_buffer, buffer_seek_start, 0);
 		buffer_write(server_buffer, buffer_text, data);
-		network_send_udp_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));
-		//instance_create_layer(0, 0, "Instances", oGame, {connection : connectionType.host});
-		//room_goto(rmGame);
+		network_send_udp_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));	
+		myLobby = noone;
 	}
-} else {
-	if (!amIHosting) {
-		if keyboard_check_pressed(vk_up)
+
+	if (keyboard_check_pressed(vk_backspace) ) {
+		var _data = new nwData(msgType.END_HOST, 0);
+		var data = json_stringify(_data);
+		buffer_seek(server_buffer, buffer_seek_start, 0);
+		buffer_write(server_buffer, buffer_text, data);
+		network_send_udp_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));	
+		myLobby = noone;
+	}
+
+	if (amIHosting && myLobby) {
+		if keyboard_check_pressed(vk_enter)
 		{
-			selectedLobby += 1;
-			if selectedLobby > array_length(lobbies)
-				selectedLobby = 0;
+			canStartGame = false;
+			var _data = new nwData(msgType.READY, 0);
+			var data = json_stringify(_data);
+			buffer_seek(server_buffer, buffer_seek_start, 0);
+			buffer_write(server_buffer, buffer_text, data);
+			network_send_udp_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));
+			//instance_create_layer(0, 0, "Instances", oGame, {connection : connectionType.host});
+			//room_goto(rmGame);
 		}
-		if keyboard_check_pressed(vk_down) 
-		{
-			if selectedLobby == 0
-				selectedLobby = array_length(lobbies) - 1;
-			else
-			selectedLobby -= 1;
-		}
+	} else {
+		//if (!amIHosting) {
+		//	if keyboard_check_pressed(vk_up)
+		//	{
+		//		selectedLobby += 1;
+		//		if selectedLobby > array_length(lobbies)
+		//			selectedLobby = 0;
+		//	}
+		//	if keyboard_check_pressed(vk_down) 
+		//	{
+		//		if selectedLobby == 0
+		//			selectedLobby = array_length(lobbies) - 1;
+		//		else
+		//		selectedLobby -= 1;
+		//	}
 		
-		if keyboard_check_pressed(vk_space)
-		{
-			JoinLobby(selectedLobby);
-		}
+		//	if keyboard_check_pressed(vk_space)
+		//	{
+		//		JoinLobby(selectedLobby);
+		//	}
+		//}
 	}
-}
 
-if (canStartGame)  && amIHosting{
-	if keyboard_check_pressed(vk_enter) {
-		var _data = new nwData(msgType.READY, 0);
-		var data = json_stringify(_data);
-		buffer_seek(server_buffer, buffer_seek_start, 0);
-		buffer_write(server_buffer, buffer_text, data);
-		network_send_udp_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));
-	}
-}
-else {
-	if ( myLobby == noone) {
+	if (canStartGame)  && amIHosting{
 		if keyboard_check_pressed(vk_enter) {
-			var _lobby = CreateLobby();
+			var _data = new nwData(msgType.READY, 0);
+			var data = json_stringify(_data);
+			buffer_seek(server_buffer, buffer_seek_start, 0);
+			buffer_write(server_buffer, buffer_text, data);
+			network_send_udp_raw(lobbyServer, lobbyHost, port, server_buffer, buffer_tell(server_buffer));
 		}
+	}
+	else {
+		if ( myLobby == noone) {
+			if keyboard_check_pressed(vk_enter) {
+				var _lobby = CreateLobby();
+				myLobby = _lobby;
+			}
+		}
+
 	}
 
 }
-
+else
+	visible = false;

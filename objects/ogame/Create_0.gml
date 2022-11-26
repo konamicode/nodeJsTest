@@ -46,12 +46,21 @@ Player = function(instance) constructor {
 	}	
 }
 
-networkUpdate = function() {
-	var data = json_stringify(new gameData(msgSource.host, -1, currentGame));
-	buffer_seek(gameBuffer, buffer_seek_start, 0);
-	buffer_write(gameBuffer, buffer_text, data);
-	if (clientSocket)
-		network_send_raw(clientSocket, gameBuffer, buffer_tell(gameBuffer));		
+//networkUpdate = function() {
+//	var data = json_stringify(new gameData(msgSource.host, -1, currentGame));
+//	buffer_seek(gameBuffer, buffer_seek_start, 0);
+//	buffer_write(gameBuffer, buffer_text, data);
+//	if (clientSocket)
+//		network_send_raw(clientSocket, gameBuffer, buffer_tell(gameBuffer));		
+//}
+
+networkUpdate = function(_gmData = -1, _destIP, _destPort) {
+	with (oNetwork) {
+		var data = json_stringify(new nwData(msgType.RELAY, _gmData, _destIP, _destPort));
+		buffer_seek(other.gameBuffer, buffer_seek_start, 0);
+		buffer_write(other.gameBuffer, buffer_text, data);
+		network_send_udp_raw(lobbyServer, lobbyHost, port, other.gameBuffer, buffer_tell(other.gameBuffer));	
+	}
 }
 
 gameState = function(_players) constructor {
@@ -89,7 +98,6 @@ gameState = function(_players) constructor {
 		player1.Update(players[0].playerInstance);
 		player2.Update(players[1].playerInstance);
 		
-		oGame.networkUpdate();
 	
 	}
 	
@@ -98,6 +106,8 @@ gameState = function(_players) constructor {
 	}
 	
 	UpdateStatus = function(_newStatus) {
+		if _newStatus == gameStatus.start	
+			show_debug_message("Start?");
 		status = _newStatus;	
 	}
 	
@@ -109,8 +119,12 @@ gameState = function(_players) constructor {
 	
 	End = function(_playerNumber) {
 		winner = _playerNumber;
-		self.UpdateStatus(gameStatus.complete);
-		self.Update();
+		if (!global.isClient) {
+			self.UpdateStatus(gameStatus.complete);
+			self.Update();
+		}
+		if (oGame.alarm[0] < 0)
+			oGame.alarm[0] = 90;
 	}
 
 }

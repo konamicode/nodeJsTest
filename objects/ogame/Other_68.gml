@@ -1,12 +1,12 @@
 //show_debug_message(json_encode(async_load));
 
 switch(async_load[? "type"]) {
-	case network_type_connect:
-		//show_message("connected!");
-		clientSocket = async_load[? "socket"];
-		//start game!
-		currentGame.Reset();
-	break;
+	//case network_type_connect:
+	//	//show_message("connected!");
+	//	clientSocket = async_load[? "socket"];
+	//	//start game!
+	//	currentGame.Reset();
+	//break;
 	case network_type_data:
 		if (async_load[? "size"] > 0)
 		{
@@ -23,7 +23,7 @@ switch(async_load[? "type"]) {
 						var remoteInput = data;
 						var _instance = players[1].playerInstance;
 						players[1].updatePosition(_instance.x, remoteInput * -moveSpeed);
-						//currentGame.Update();
+						currentGame.Update();
 					}
 				break;
 				case msgSource.host:
@@ -44,11 +44,12 @@ switch(async_load[? "type"]) {
 						players[1].playerInstance.x = player2.x;
 						players[1].playerInstance.y = player2.y;
 						currentGame.UpdateStatus(status);
-						currentGame.Update();
+						//currentGame.Update();
 						if (currentGame.status == gameStatus.complete)						
 						{
-							currentGame.winner = variable_struct_get(data, "winner");
+							currentGame.End(variable_struct_get(data, "winner"));
 						}
+						
 						//currentGame.Update(ball.x, ball.y, player1.x, player1.y, player2.x, player2.y);
 					}
 				break;

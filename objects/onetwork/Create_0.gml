@@ -9,6 +9,7 @@ enum msgType {
 	START_GAME,
 	END_HOST,
 	CLEAR_LOBBIES,
+	RELAY,
 	QUIT
 }
 
@@ -40,8 +41,10 @@ response = "";
 msg = "";
 networkInput = "";
 
-function nwData(_type = msgType.PING, _data = {}) constructor {
+function nwData(_type = msgType.PING, _data = {}, _destIP = -1, _destPort = -1) constructor {
 	type = _type;
+	destIP = _destIP;
+	destPort = _destPort;
 	data = _data;
 }
 
@@ -110,10 +113,15 @@ function QuitLobby() {
 }
 
 
-StartGame = function(ip) {
+StartGame = function(data) {
+	var clients = variable_struct_get(data, "clients");
+	var ports = variable_struct_get(data, "ports");
 	show_debug_message("Starting game!");
 	global.isClient = !amIHosting;
-	global.gameHostIP = ip;	
+	global.gameHostIP = clients[0];
+	global.gameHostPort = ports[0];
+	global.gameClientIP = clients[1];
+	global.gameClientPort = ports[1];
 	//instance_create_layer(0, 0, "Instances", oGame, {connection : connectionType.client});
 	room_goto(rmGame);
 }

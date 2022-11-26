@@ -3,6 +3,8 @@
   "resourceVersion": "1.6",
   "name": "nodeJsTest",
   "resources": [
+    {"id":{"name":"oJoinLobbyButton","path":"objects/oJoinLobbyButton/oJoinLobbyButton.yy",},"order":4,},
+    {"id":{"name":"sprJoinButton","path":"sprites/sprJoinButton/sprJoinButton.yy",},"order":4,},
     {"id":{"name":"oPlayerBat","path":"objects/oPlayerBat/oPlayerBat.yy",},"order":1,},
     {"id":{"name":"oBall","path":"objects/oBall/oBall.yy",},"order":3,},
     {"id":{"name":"sprBall","path":"sprites/sprBall/sprBall.yy",},"order":1,},

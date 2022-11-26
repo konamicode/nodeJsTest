@@ -9,10 +9,18 @@ var input_up = keyboard_check(vk_up);
 var input = input_up - input_down;
 switch(connection) {
 	case connectionType.client:	
-		var data = json_stringify(new gameData(msgSource.client, players[1].playerId, input));
-		buffer_seek(gameBuffer, buffer_seek_start, 0);
-		buffer_write(gameBuffer, buffer_text, data);
-		network_send_raw(serverSocket, gameBuffer, buffer_tell(gameBuffer));	
+		//var data = json_stringify(new gameData(msgSource.client, players[1].playerId, input));
+		//buffer_seek(gameBuffer, buffer_seek_start, 0);
+		//buffer_write(gameBuffer, buffer_text, data);
+		//network_send_raw(serverSocket, gameBuffer, buffer_tell(gameBuffer));
+		var gmData = new gameData(msgSource.client, players[1].playerId, input);
+		networkUpdate(gmData, global.gameHostIP, global.gameHostPort);
+		//var data = json_stringify(new nwData(msgType.RELAY, gmData));
+		//buffer_seek(gameBuffer, buffer_seek_start, 0);
+		//buffer_write(gameBuffer, buffer_text, data);
+		//with (oNetwork) {
+		//	network_send_udp_raw(lobbyServer, lobbyHost, port, other.gameBuffer, buffer_tell(other.gameBuffer));	
+		//}
 		
 	break;
 	
@@ -43,8 +51,9 @@ switch(connection) {
 		}
 		players[0].updatePosition(0, input * -moveSpeed);
 		//currentGame.Update();
+		var gmData = new gameData(msgSource.host, players[0].playerId, currentGame);
 		currentGame.Update();
-		
+		networkUpdate(gmData, global.gameClientIP, global.gameClientPort);
 		//networkUpdate();
 		
 		//var data = json_stringify(new gameData(msgSource.host, -1, currentGame));
